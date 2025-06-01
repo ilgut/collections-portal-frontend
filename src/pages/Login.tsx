@@ -1,7 +1,7 @@
-﻿// src/pages/Login.tsx
-import {type FormEvent, useState } from 'react';
+import { type FormEvent, useState } from 'react';
 import { useAuth } from '@/auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import './Login.css';
 
 export default function Login() {
     const { login } = useAuth();
@@ -16,39 +16,52 @@ export default function Login() {
         e.preventDefault();
         try {
             await login(form);
-            nav('/');            // np. dashboard kolekcji
+            nav('/');
         } catch (err: any) {
             setError(err.response?.data ?? 'Wystąpił błąd');
         }
     };
 
     return (
-        <div className="max-w-sm mx-auto mt-20">
-            <h1 className="text-2xl font-bold mb-6">Logowanie</h1>
-            <form onSubmit={submit} className="space-y-4">
-                <input
-                    className="input block w-full"
-                    name="email"
-                    type="email"
-                    placeholder="e-mail"
-                    value={form.email}
-                    onChange={handleChange}
-                    required
-                />
-                <input
-                    className="input block w-full"
-                    name="password"
-                    type="password"
-                    placeholder="hasło"
-                    value={form.password}
-                    onChange={handleChange}
-                    required
-                />
-                {error && <p className="text-red-600">{error}</p>}
-                <button className="btn w-full" type="submit">
-                    Zaloguj
+    <div className="login-container">
+        <div className="login-form-wrapper">
+            <h2>Logowanie</h2>
+            <form onSubmit={submit} className="login-form">
+                <div className="form-group">
+                    <label htmlFor="email">E-mail</label>
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="wprowadź e-mail"
+                        value={form.email}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="password">Hasło</label>
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        placeholder="wprowadź hasło"
+                        value={form.password}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                {error && <div className="error-message">{error}</div>}
+                <button type="submit" className="login-button">
+                    Zaloguj się
                 </button>
             </form>
+            <button
+                onClick={() => nav('/register')}
+                className="login-button">
+                Utwórz konto
+            </button>
         </div>
+    </div>
     );
 }
