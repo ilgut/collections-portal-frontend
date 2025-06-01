@@ -3,11 +3,13 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import { AuthProvider } from "@/auth/AuthContext";
+import Navbar from '@/pages/Navbar';
 
 function App() {
     return (
         <AuthProvider>
             <Router>
+                <Navbar />
                 <Routes>
                     <Route path="/" element={<Navigate to="/" />} />
                     <Route path="/login" element={<Login />} />
