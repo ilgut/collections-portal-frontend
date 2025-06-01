@@ -1,12 +1,13 @@
-﻿// src/pages/Login.tsx
-import {type FormEvent, useState } from 'react';
+// src/pages/Register.tsx
+import { type FormEvent, useState } from 'react';
 import { useAuth } from '@/auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import './Register.css';
 
 export default function Register() {
     const { register } = useAuth();
     const nav = useNavigate();
-    const [form, setForm] = useState({ email: '', password: '' });
+    const [form, setForm] = useState({ email: '', password: '', name: '', surname: '' });
     const [error, setError] = useState('');
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -23,32 +24,69 @@ export default function Register() {
     };
 
     return (
-        <div className="max-w-sm mx-auto mt-20">
-            <h1 className="text-2xl font-bold mb-6">Załóż konto</h1>
-            <form onSubmit={submit} className="space-y-4">
-                <input
-                    className="input block w-full"
-                    name="email"
-                    type="email"
-                    placeholder="e-mail"
-                    value={form.email}
-                    onChange={handleChange}
-                    required
-                />
-                <input
-                    className="input block w-full"
-                    name="password"
-                    type="password"
-                    placeholder="hasło"
-                    value={form.password}
-                    onChange={handleChange}
-                    required
-                />
-                {error && <p className="text-red-600">{error}</p>}
-                <button className="btn w-full" type="submit">
-                    Utworz konto
+    <div className="register-container">
+        <div className="register-box">
+            <h2>Załóż konto</h2>
+            <form onSubmit={submit} className="register-form">
+                <div className="form-group">
+                    <label htmlFor="email">E-mail</label>
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="Wprowadź e-mail"
+                        value={form.email}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="password">Hasło</label>
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        placeholder="Wprowadź hasło"
+                        value={form.password}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="name">Imie</label>
+                    <input
+                        id="name"
+                        name="name"
+                        type="name"
+                        placeholder="Wprowadź imie"
+                        value={form.name}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="surname">Nazwisko</label>
+                    <input
+                        id="surname"
+                        name="surname"
+                        type="surname"
+                        placeholder="Wprowadź nazwisko"
+                        value={form.surname}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                {error && <div className="error-message">{error}</div>}
+                <button type="submit" className="register-button">
+                    Utwórz konto
                 </button>
             </form>
+            <button
+                onClick={() => nav('/login')}
+                className="register-button">
+                Wróć
+            </button>
         </div>
+    </div>
     );
 }
