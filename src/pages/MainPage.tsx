@@ -63,7 +63,12 @@ const Main: React.FC = () => {
                             <span className="item-name">Znaczek Poczty, 1955</span>
                         </li>
                     </ul>
-                    <button className="btn">więcej</button>
+                    <button 
+                        className="btn"
+                        onClick={() => nav("/Walory")}
+                        >
+                        więcej
+                    </button>
                 </div>
             </div>
         </div>

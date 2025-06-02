@@ -6,6 +6,7 @@ import MainPage from "./pages/MainPage";
 import { AuthProvider } from "@/auth/AuthContext";
 import Navbar from '@/pages/Navbar';
 import Edit from "./pages/Edit";
+import Walory from "./pages/Walory";
 
 function App() {
     return (
@@ -17,6 +18,7 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/edit" element={<Edit />} />
+                    <Route path="/walory" element={<Walory />} />
                 </Routes>
             </Router>
         </AuthProvider>
