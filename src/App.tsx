@@ -5,6 +5,7 @@ import Register from "@/pages/Register";
 import MainPage from "./pages/MainPage";
 import { AuthProvider } from "@/auth/AuthContext";
 import Navbar from '@/pages/Navbar';
+import Edit from "./pages/Edit";
 
 function App() {
     return (
@@ -15,6 +16,7 @@ function App() {
                     <Route path="/" element={<MainPage />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/edit" element={<Edit />} />
                 </Routes>
             </Router>
         </AuthProvider>
