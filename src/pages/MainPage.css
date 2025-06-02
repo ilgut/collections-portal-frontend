@@ -5,7 +5,6 @@ body {
     color: #000;
 }
 
-/* The main container remains a column flex container so the profile block is on top */
 .main-container {
     width: 100vw;
     height: 100vh;
@@ -17,7 +16,6 @@ body {
     box-sizing: border-box;
 }
 
-/* Profile section styling */
 .profile-section {
     position: relative;
     width: 100%;
@@ -124,5 +122,47 @@ body {
     border-top: 1px solid #eee;
     font-size: 15px;
     line-height: 1.5;
+    color: #333;
+}
+
+.walory {
+    flex: 1;
+    min-width: 280px;
+}
+
+.walory h2 {
+    font-size: 1.25rem;
+    margin-bottom: 12px;
+    color: #222;
+}
+
+.walory .item-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 16px;
+}
+
+.walory .item-list li {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.walory .item-list li:last-child {
+    border-bottom: none;
+}
+
+.item-preview {
+    width: 50px;
+    height: 50px;
+    background-color: #ccc;
+    border-radius: 4px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.item-name {
+    font-size: 1rem;
     color: #333;
 }

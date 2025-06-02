@@ -54,8 +54,14 @@ const Main: React.FC = () => {
                 <div className="card column walory">
                     <h2>Walory</h2>
                     <ul className="item-list">
-                        <li>Moneta Polska 1930</li>
-                        <li>Marka Poczty 1955</li>
+                        <li>
+                            <div className="item-preview" />
+                            <span className="item-name">Moneta Polska 5 zł, 1930</span>
+                        </li>
+                        <li>
+                            <div className="item-preview" />
+                            <span className="item-name">Znaczek Poczty, 1955</span>
+                        </li>
                     </ul>
                     <button className="btn">więcej</button>
                 </div>
