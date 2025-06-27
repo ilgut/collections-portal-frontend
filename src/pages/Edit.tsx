@@ -1,34 +1,82 @@
-import { useState, useEffect, type FormEvent } from 'react';
+import { useState, useEffect } from 'react';
+import type { FormEvent, ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Edit.css';
 
 export default function Edit() {
     const navigate = useNavigate();
 
-    const [form, setForm] = useState({
-        email: '',
-        name: '',
-        surname: '',
-        phone: '',
-        city: '',
-        description: '',
-        rank: ''
-    });
+    const [bio, setBio] = useState('');
+    const [photoBase64, setPhotoBase64] = useState('');
+    const [error, setError] = useState('');
 
     useEffect(() => {
-        const data = localStorage.getItem('profile');
-        if (data) {
-            setForm(JSON.parse(data));
-        }
+        const token = localStorage.getItem('authToken');
+        if (!token) return;
+
+        fetch('http://localhost:5099/api/user/me', {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(data => {
+            setBio(data.bio || '');
+            setPhotoBase64(data.photoBase64 || ''); // <- ключ camelCase
+        })
+        .catch(err => {
+            console.error('❌ Błąd pobierania profilu:', err);
+            setError('Nie udało się załadować danych profilu.');
+        });
     }, []);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-        setForm({ ...form, [e.target.name]: e.target.value });
+    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-    const handleSubmit = (e: FormEvent) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const result = reader.result as string;
+            setPhotoBase64(result); // сохраняем как строку base64
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        localStorage.setItem('profile', JSON.stringify(form));
-        navigate('/');
+        const token = localStorage.getItem('authToken');
+
+        if (!token) {
+            setError('Brak tokena autoryzacji!');
+            return;
+        }
+
+        const payload = {
+            bio,
+            photoBase64 // <- важно: ключ в camelCase
+        };
+
+        console.log('📤 Wysyłanie danych:', payload);
+
+        try {
+            const res = await fetch('http://localhost:5099/api/user/me', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`HTTP ${res.status}: ${text}`);
+            }
+
+            console.log('🟢 Zaktualizowano profil');
+            navigate('/');
+        } catch (err: any) {
+            console.error('❌ Błąd zapisu:', err);
+            setError(`Nie udało się zapisać: ${err.message}`);
+        }
     };
 
     return (
@@ -37,90 +85,42 @@ export default function Edit() {
                 <h2>Edytuj profil</h2>
                 <form onSubmit={handleSubmit} className="editt-form">
                     <div className="form-group">
-                        <label htmlFor="email">E-mail</label>
+                        <label htmlFor="photo">Załaduj zdjęcie (PNG, JPG)</label>
                         <input
-                            id="email"
-                            name="email"
-                            type="email"
-                            placeholder="Wpisz nowe dane"
-                            value={form.email}
-                            onChange={handleChange}
-                            required
+                            id="photo"
+                            type="file"
+                            accept="image/png, image/jpeg"
+                            onChange={handleFileChange}
                         />
                     </div>
+
+                    {photoBase64 && (
+                        <div className="form-group">
+                            <label>Podgląd zdjęcia:</label>
+                            <img
+                                src={photoBase64}
+                                alt="Preview"
+                                style={{ maxWidth: '200px', display: 'block', marginTop: '10px' }}
+                            />
+                        </div>
+                    )}
+
                     <div className="form-group">
-                        <label htmlFor="name">Imię</label>
-                        <input
-                            id="name"
-                            name="name"
-                            type="text"
-                            placeholder="Wpisz nowe dane"
-                            value={form.name}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="surname">Nazwisko</label>
-                        <input
-                            id="surname"
-                            name="surname"
-                            type="text"
-                            placeholder="Wpisz nowe dane"
-                            value={form.surname}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="phone">Telefon</label>
-                        <input
-                            id="phone"
-                            name="phone"
-                            type="tel"
-                            placeholder="Wpisz nowe dane"
-                            value={form.phone}
-                            onChange={handleChange}
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="city">Miasto</label>
-                        <input
-                            id="city"
-                            name="city"
-                            type="text"
-                            placeholder="Wpisz nowe dane"
-                            value={form.city}
-                            onChange={handleChange}
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="description">Opis</label>
+                        <label htmlFor="bio">Opis</label>
                         <textarea
-                            id="description"
-                            name="description"
+                            id="bio"
+                            name="bio"
                             rows={4}
-                            placeholder="Wpisz nowe dane"
-                            value={form.description}
-                            onChange={handleChange}
+                            placeholder="Wpisz nowy opis"
+                            value={bio}
+                            onChange={(e) => setBio(e.target.value)}
                         />
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="rank">Ranga</label>
-                        <input
-                            id="rank"
-                            name="rank"
-                            type="text"
-                            placeholder="Wpisz nowe dane"
-                            value={form.rank}
-                            onChange={handleChange}
-                        />
-                    </div>
+
+                    {error && <div style={{ color: 'red' }}>{error}</div>}
                     <button type="submit" className="editt-button">Zapisz zmiany</button>
                 </form>
-                <button onClick={() => navigate('/')} className="editt-button">
-                    Wróć
-                </button>
+                <button onClick={() => navigate('/')} className="editt-button">Wróć</button>
             </div>
         </div>
     );
