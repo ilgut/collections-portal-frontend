@@ -36,8 +36,8 @@ body {
 }
 
 .profile-image {
-    width: 120px;       
-    height: 120px;
+    width: 180px;       
+    height: 180px;
     background-color: #ddd;
     border-radius: 50%;
     flex-shrink: 0;
@@ -165,4 +165,63 @@ body {
 .item-name {
     font-size: 1rem;
     color: #333;
+}
+
+.item-preview {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+.friends {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.friend-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.friend-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+}
+
+.friends .btn {
+    align-self: flex-start;
+    margin-top: auto;
+}
+
+.friend-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #ccc;
+}
+
+.friend-info {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.friend-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.friend-email {
+    font-size: 0.85rem;
+    color: #777;
+    text-align: right;
 }
