@@ -1,92 +1,75 @@
-// src/pages/Register.tsx
-import { type FormEvent, useState } from 'react';
-import { useAuth } from '@/auth/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import './Register.css';
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import "./WalorInfo.css";
 
-export default function Register() {
-    const { register } = useAuth();
-    const nav = useNavigate();
-    const [form, setForm] = useState({ email: '', password: '', name: '', surname: '' });
-    const [error, setError] = useState('');
+interface Characteristic {
+    id: number;
+    value: string;
+}
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-        setForm({ ...form, [e.target.name]: e.target.value });
+interface Walor {
+    id: number;
+    name: string;
+    photoBase64: string;
+    characteristics: Characteristic[];
+}
 
-    const submit = async (e: FormEvent) => {
-        e.preventDefault();
-        try {
-            await register(form);
-            nav('/login');     
-        } catch (err: any) {
-            setError(err.response?.data ?? 'Wystąpił błąd');
-        }
-    };
+const WalorInfo: React.FC = () => {
+    const { id } = useParams<{ id: string }>();
+    const [walor, setWalor] = useState<Walor | null>(null);
+    const [comment, setComment] = useState("");
+
+    useEffect(() => {
+        const token = localStorage.getItem("authToken");
+        if (!token) return;
+
+        fetch(`http://localhost:5099/api/items/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        })
+            .then((res) => res.json())
+            .then((data) => setWalor(data))
+            .catch((err) => console.error("Błąd ładowania waloru:", err));
+    }, [id]);
+
+    if (!walor) return <p>Ładowanie…</p>;
 
     return (
-    <div className="register-container">
-        <div className="register-box">
-            <h2>Załóż konto</h2>
-            <form onSubmit={submit} className="register-form">
-                <div className="form-group">
-                    <label htmlFor="email">E-mail</label>
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        placeholder="Wprowadź e-mail"
-                        value={form.email}
-                        onChange={handleChange}
-                        required
+        <div className="item-container">
+            <div className="item-main">
+                <div className="item-info">
+                    <h2>{walor.name}</h2>
+                    <h3>Cechy:</h3>
+                    <ul>
+                        {walor.characteristics.map((c) => (
+                            <li key={c.id}>{c.value}</li>
+                        ))}
+                    </ul>
+                </div>
+                <div className="item-photo">
+                    <img
+                        src={`data:image/jpeg;base64,${walor.photoBase64}`}
+                        alt={walor.name}
+                        loading="lazy"
                     />
                 </div>
-                <div className="form-group">
-                    <label htmlFor="password">Hasło</label>
-                    <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        placeholder="Wprowadź hasło"
-                        value={form.password}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="name">Imie</label>
-                    <input
-                        id="name"
-                        name="name"
-                        type="name"
-                        placeholder="Wprowadź imie"
-                        value={form.name}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="surname">Nazwisko</label>
-                    <input
-                        id="surname"
-                        name="surname"
-                        type="surname"
-                        placeholder="Wprowadź nazwisko"
-                        value={form.surname}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                {error && <div className="error-message">{error}</div>}
-                <button type="submit" className="register-button">
-                    Utwórz konto
-                </button>
-            </form>
-            <button
-                onClick={() => nav('/login')}
-                className="register-button">
-                Wróć
-            </button>
+            </div>
+
+            <div className="comment-box">
+                <div className="comment-avatar">Z</div>
+                <input
+                    type="text"
+                    placeholder="Wprowadź komentarz"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                />
+                <button disabled>Wyślij</button>
+            </div>
         </div>
-    </div>
     );
-}
+};
+
+export default WalorInfo;
+    
