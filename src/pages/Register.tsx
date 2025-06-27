@@ -1,75 +1,95 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import "./WalorInfo.css";
+import { type FormEvent, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import './Register.css';
 
-interface Characteristic {
-    id: number;
-    value: string;
-}
+export default function Register() {
+    const nav = useNavigate();
+    const [form, setForm] = useState({
+        username: '',
+        email: '',
+        data: '',
+        foto: '', // zawiera base64 string
+        password: '',
+        confirmPassword: '',
+    });
+    const [error, setError] = useState('');
 
-interface Walor {
-    id: number;
-    name: string;
-    photoBase64: string;
-    characteristics: Characteristic[];
-}
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+        setForm({ ...form, [e.target.name]: e.target.value });
 
-const WalorInfo: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
-    const [walor, setWalor] = useState<Walor | null>(null);
-    const [comment, setComment] = useState("");
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-    useEffect(() => {
-        const token = localStorage.getItem("authToken");
-        if (!token) return;
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const result = reader.result as string;
+            setForm(prev => ({ ...prev, foto: result }));
+        };
+        reader.readAsDataURL(file); // konwertuje obraz do base64
+    };
 
-        fetch(`http://localhost:5099/api/items/${id}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-        })
-            .then((res) => res.json())
-            .then((data) => setWalor(data))
-            .catch((err) => console.error("Błąd ładowania waloru:", err));
-    }, [id]);
+    const submit = async (e: FormEvent) => {
+        e.preventDefault();
 
-    if (!walor) return <p>Ładowanie…</p>;
+        if (form.password !== form.confirmPassword) {
+            setError('Hasła nie są takie same');
+            return;
+        }
+
+        try {
+            const response = await axios.post('http://localhost:5099/api/auth/register', {
+                username: form.username,
+                email: form.email,
+                data: form.data,
+                foto: form.foto, // base64
+                password: form.password,
+                confirmPassword: form.password,
+            });
+
+            const token = response.data.token;
+            localStorage.setItem('authToken', token);
+            nav('/');
+        } catch (err: any) {
+            setError(err.response?.data?.message ?? 'Nie udało się zarejestrować');
+        }
+    };
 
     return (
-        <div className="item-container">
-            <div className="item-main">
-                <div className="item-info">
-                    <h2>{walor.name}</h2>
-                    <h3>Cechy:</h3>
-                    <ul>
-                        {walor.characteristics.map((c) => (
-                            <li key={c.id}>{c.value}</li>
-                        ))}
-                    </ul>
-                </div>
-                <div className="item-photo">
-                    <img
-                        src={`data:image/jpeg;base64,${walor.photoBase64}`}
-                        alt={walor.name}
-                        loading="lazy"
-                    />
-                </div>
-            </div>
-
-            <div className="comment-box">
-                <div className="comment-avatar">Z</div>
-                <input
-                    type="text"
-                    placeholder="Wprowadź komentarz"
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                />
-                <button disabled>Wyślij</button>
+        <div className="register-container">
+            <div className="register-box">
+                <h2>Załóż konto</h2>
+                <form onSubmit={submit} className="register-form">
+                    <div className="form-group">
+                        <label htmlFor="username">Nazwa użytkownika</label>
+                        <input id="username" name="username" type="text" value={form.username} onChange={handleChange} required />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="email">E-mail</label>
+                        <input id="email" name="email" type="email" value={form.email} onChange={handleChange} required />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="data">Opis użytkownika</label>
+                        <input id="data" name="data" type="text" value={form.data} onChange={handleChange} required />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="foto">Zdjęcie profilowe</label>
+                        <input id="foto" name="foto" type="file" accept="image/png, image/jpeg" onChange={handleFileChange} required />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="password">Hasło</label>
+                        <input id="password" name="password" type="password" value={form.password} onChange={handleChange} required />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="confirmPassword">Powtórz hasło</label>
+                        <input id="confirmPassword" name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} required />
+                    </div>
+                    {error && <div className="error-message">{error}</div>}
+                    <button type="submit" className="register-button">Utwórz konto</button>
+                </form>
+                <button onClick={() => nav('/login')} className="register-button">Wróć</button>
             </div>
         </div>
     );
-};
-
-export default WalorInfo;
-    
+}
