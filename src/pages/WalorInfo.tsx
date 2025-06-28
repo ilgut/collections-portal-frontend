@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "./WalorInfo.css";
 
 interface Characteristic {
@@ -34,6 +34,7 @@ const WalorInfo: React.FC = () => {
     const [comments, setComments] = useState<Comment[]>([]);
     const [userMap, setUserMap] = useState<Record<string, UserProfile>>({});
     const token = localStorage.getItem("authToken");
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (!token || !id) return;
@@ -105,6 +106,22 @@ const WalorInfo: React.FC = () => {
 
     return (
         <div className="item-container">
+            <button
+                onClick={() => navigate(-1)}
+                style={{
+                    alignSelf: "flex-start",
+                    marginBottom: "16px",
+                    padding: "8px 16px",
+                    borderRadius: "8px",
+                    border: "none",
+                    backgroundColor: "#1877f2",
+                    color: "#fff",
+                    cursor: "pointer",
+                    fontWeight: "bold"
+                }}
+            >
+                ← Wróć
+            </button>
             <div className="item-main">
                 <div className="item-info">
                     <h2>{walor.name}</h2>
