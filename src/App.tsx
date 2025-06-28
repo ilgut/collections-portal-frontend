@@ -9,6 +9,9 @@ import Edit from "./pages/Edit";
 import Walory from "./pages/Walory";
 import WalorInfo from "./pages/WalorInfo";
 import Friends from "./pages/Friends";
+import FriendProfile from "./pages/FriendProfile";
+import AddWalor from "./pages/AddWalor";
+import AcceptInvitation from './pages/AcceptInvitation';
 
 function App() {
     return (
@@ -22,7 +25,11 @@ function App() {
                     <Route path="/edit" element={<Edit />} />
                     <Route path="/friends" element={<Friends />} />
                     <Route path="/walory" element={<Walory />} />
+                    <Route path="/addwalor" element={<AddWalor />} />
+                    <Route path="/AddWalor" element={<AddWalor />} />
+                    <Route path="/invitations/accept" element={<AcceptInvitation />} />
                     <Route path="/walor/:id" element={<WalorInfo />} />
+                    <Route path="/friend/:id" element={<FriendProfile />} />
                 </Routes>
             </Router>
         </AuthProvider>
