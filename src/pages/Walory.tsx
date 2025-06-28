@@ -46,7 +46,11 @@ const WaloryPage: React.FC = () => {
                     ← Wróć
                 </button>
                 <h1>Wszystkie Walory</h1>
+                <button className="btn add-button" onClick={() => nav("/AddWalor")}>
+                    + Dodaj walor
+                </button>
             </div>
+
 
             <div className="walory-content-wrapper">
                 <aside className="sidebar-left">
