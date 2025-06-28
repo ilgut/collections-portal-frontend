@@ -1,7 +1,7 @@
-﻿.walory-page-container {
+.walory-page-container {
     padding: 80px 24px 24px;
-    max-width: 100%;
-    margin: 0 auto;
+    width: 100vw;
+    height: 100%;
     background-color: #f0f2f5;
     box-sizing: border-box;
 }
@@ -225,4 +225,27 @@
     .walor-content {
         padding: 12px;
     }
+}
+
+.walory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+}
+
+.add-button {
+    background-color: #28a745;
+    color: white;
+    font-weight: bold;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.add-button:hover {
+    background-color: #218838;
 }
