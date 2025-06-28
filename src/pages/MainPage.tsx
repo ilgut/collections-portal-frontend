@@ -106,7 +106,6 @@ const Main: React.FC = () => {
                             )}
                             <div className="friend-info">
                                 <span className="friend-name">{friend.userName}</span>
-                                <span className="friend-email">{friend.email}</span>
                             </div>
                         </li>
                     ))}
