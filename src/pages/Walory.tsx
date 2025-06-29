@@ -13,34 +13,56 @@ type Walor = {
     categoryId: number;
     photoBase64: string;
     characteristics: Characteristic[];
+    createdAt?: string;
 };
 
-const categoryMap: Record<string, number | null> = {
-    Wszystkie: null,
-    Monety: 1,
-    Znaczki: 2,
-    Banknoty: 3,
-    Medale: 4,
-    Inne: 5
+type Category = {
+    id: number;
+    name: string;
+    ownerId: string;
+};
+
+type User = {
+    id: string;
 };
 
 const sortOptions = [
-    { label: "Alfabetycznie", value: "alfabet" },
-    { label: "Data dodania", value: "dataDodania" },
+    { label: "A → Z", value: "az" },
+    { label: "Z → A", value: "za" },
+    { label: "Data: najnowsze", value: "data-desc" },
+    { label: "Data: najstarsze", value: "data-asc" },
     { label: "Kategoria", value: "kategoria" },
 ];
 
 const WaloryPage: React.FC = () => {
     const nav = useNavigate();
     const [walory, setWalory] = useState<Walor[]>([]);
-    const [selectedCategory, setSelectedCategory] = useState<string>("Wszystkie");
-    const [selectedSort, setSelectedSort] = useState<string>("alfabet");
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+    const [selectedSort, setSelectedSort] = useState<string>("az");
 
-    const fetchWalory = async (category: string, sort: string) => {
+    // Pobierz kategorie (należące do użytkownika)
+    useEffect(() => {
         const token = localStorage.getItem("authToken");
         if (!token) return;
 
-        const categoryId = categoryMap[category];
+        fetch("http://localhost:5099/api/category", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
+            .then(res => res.json())
+            .then((data: Category[]) => {
+                setCategories(data);
+            })
+            .catch(err => console.error("❌ Błąd pobierania kategorii:", err));
+    }, []);
+
+    // Pobierz walory z filtrem
+    const fetchWalory = async (categoryId: number | null, sort: string) => {
+        const token = localStorage.getItem("authToken");
+        if (!token) return;
+
         const queryParams = new URLSearchParams();
         if (categoryId !== null) queryParams.append("categoryId", categoryId.toString());
 
@@ -57,16 +79,27 @@ const WaloryPage: React.FC = () => {
 
             let data: Walor[] = await response.json();
 
-            // 🔽 Сортировка на фронте:
-            data = sort === "dataDodania"
-                ? [...data].sort((a, b) => {
-                    const dateA = new Date((a as any).createdAt || 0).getTime();
-                    const dateB = new Date((b as any).createdAt || 0).getTime();
-                    return dateB - dateA; // newest first
-                })
-                : sort === "kategoria"
-                ? [...data].sort((a, b) => a.categoryId - b.categoryId)
-                : [...data].sort((a, b) => a.name.localeCompare(b.name));
+            // Sortowanie
+            data = [...data];
+            switch (sort) {
+                case "az":
+                    data.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case "za":
+                    data.sort((a, b) => b.name.localeCompare(a.name));
+                    break;
+                case "data-desc":
+                    data.sort((a, b) => new Date(b.createdAt ?? "").getTime() - new Date(a.createdAt ?? "").getTime());
+                    break;
+                case "data-asc":
+                    data.sort((a, b) => new Date(a.createdAt ?? "").getTime() - new Date(b.createdAt ?? "").getTime());
+                    break;
+                case "kategoria":
+                    data.sort((a, b) => a.categoryId - b.categoryId);
+                    break;
+                default:
+                    break;
+            }
 
             setWalory(data);
         } catch (err) {
@@ -75,8 +108,8 @@ const WaloryPage: React.FC = () => {
     };
 
     useEffect(() => {
-        fetchWalory(selectedCategory, selectedSort);
-    }, [selectedCategory, selectedSort]);
+        fetchWalory(selectedCategoryId, selectedSort);
+    }, [selectedCategoryId, selectedSort]);
 
     const handleExport = async () => {
         const token = localStorage.getItem("authToken");
@@ -85,9 +118,8 @@ const WaloryPage: React.FC = () => {
             return;
         }
 
-        const categoryId = categoryMap[selectedCategory];
         const queryParams = new URLSearchParams();
-        if (categoryId !== null) queryParams.append("categoryId", categoryId.toString());
+        if (selectedCategoryId !== null) queryParams.append("categoryId", selectedCategoryId.toString());
         if (selectedSort) queryParams.append("sort", selectedSort);
 
         const url = `http://localhost:5099/api/items/export/xlsx?${queryParams.toString()}`;
@@ -116,8 +148,6 @@ const WaloryPage: React.FC = () => {
         }
     };
 
-    const categories = Object.keys(categoryMap);
-
     return (
         <div className="walory-page-container">
             <div className="walory-header">
@@ -137,18 +167,28 @@ const WaloryPage: React.FC = () => {
 
             <div className="walory-content-wrapper">
                 <aside className="sidebar-left">
-                    <h2>Kategorie</h2>
+                    <h2>Kategorie użytkownika</h2>
                     <form className="category-form">
+                        <label className="category-label">
+                            <input
+                                type="radio"
+                                name="category"
+                                value="wszystkie"
+                                checked={selectedCategoryId === null}
+                                onChange={() => setSelectedCategoryId(null)}
+                            />
+                            <span className="category-name">Wszystkie</span>
+                        </label>
                         {categories.map((cat) => (
-                            <label key={cat} className="category-label">
+                            <label key={cat.id} className="category-label">
                                 <input
                                     type="radio"
                                     name="category"
-                                    value={cat}
-                                    checked={selectedCategory === cat}
-                                    onChange={() => setSelectedCategory(cat)}
+                                    value={cat.id}
+                                    checked={selectedCategoryId === cat.id}
+                                    onChange={() => setSelectedCategoryId(cat.id)}
                                 />
-                                <span className="category-name">{cat}</span>
+                                <span className="category-name">{cat.name}</span>
                             </label>
                         ))}
                     </form>
