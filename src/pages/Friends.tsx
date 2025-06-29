@@ -57,10 +57,14 @@ export default function Friends() {
     return (
         <div className="friends-container">
             <div className="friends-box">
+                {/* Dodana przycisk powrotu */}
+                <button onClick={() => navigate(-1)} className="back-button">← Wróć</button>
+
                 <div className="friends-header">
                     <h2>Znajomi</h2>
                     <button onClick={handleInvite} className="invite-button">Zaproś znajomego</button>
                 </div>
+
 
                 {error && <div className="error">{error}</div>}
 
