@@ -12,6 +12,8 @@ import Friends from "./pages/Friends";
 import FriendProfile from "./pages/FriendProfile";
 import AddWalor from "./pages/AddWalor";
 import AcceptInvitation from './pages/AcceptInvitation';
+import FriendWalory from "./pages/FriendWalory";
+import FriendWaloryPage from "./pages/FriendWalorInfo";
 
 function App() {
     return (
@@ -25,7 +27,9 @@ function App() {
                     <Route path="/edit" element={<Edit />} />
                     <Route path="/friends" element={<Friends />} />
                     <Route path="/walory" element={<Walory />} />
+                    <Route path="/friendwalor/:id" element={<FriendWaloryPage />} />
                     <Route path="/addwalor" element={<AddWalor />} />
+                    <Route path="/friend/:id/friendwalory" element={<FriendWalory />} />
                     <Route path="/AddWalor" element={<AddWalor />} />
                     <Route path="/invitations/accept" element={<AcceptInvitation />} />
                     <Route path="/walor/:id" element={<WalorInfo />} />
