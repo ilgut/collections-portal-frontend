@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import "./MainPage.css";
+import { useParams, useNavigate } from "react-router-dom";
+import "./MainPage.css"; // содержит нужные стили .btn и layout
 
 interface Walor {
     id: number;
@@ -20,11 +20,13 @@ interface FriendProfileDto {
     bio: string;
     photoBase64?: string;
     items: Walor[];
-    categories: any[]; // если не нужно — можно удалить
+    categories: any[];
 }
 
 const FriendProfile: React.FC = () => {
     const { id } = useParams();
+    const nav = useNavigate();
+
     const [friend, setFriend] = useState<FriendProfileDto>({
         id: "",
         userName: "",
@@ -40,18 +42,14 @@ const FriendProfile: React.FC = () => {
         const token = localStorage.getItem("authToken");
 
         fetch(`http://localhost:5099/api/friends/${id}`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+            headers: { Authorization: `Bearer ${token}` }
         })
             .then(res => res.json())
             .then(data => setFriend(data))
             .catch(err => console.error("❌ Błąd profilu znajomego:", err));
 
         fetch(`http://localhost:5099/api/friends/${id}/friends`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+            headers: { Authorization: `Bearer ${token}` }
         })
             .then(res => res.json())
             .then(data => setFriendList(data))
@@ -60,6 +58,10 @@ const FriendProfile: React.FC = () => {
 
     return (
         <div className="main-container">
+            <button className="btn" style={{ alignSelf: "flex-start", marginBottom: "1rem" }} onClick={() => nav(-1)}>
+                ← Wróć
+            </button>
+
             <div className="card profile-section">
                 <div className="profile-image" style={{
                     backgroundImage: friend.photoBase64
@@ -102,12 +104,13 @@ const FriendProfile: React.FC = () => {
                         ))}
                         {friendList.length === 0 && <li>Brak znajomych do wyświetlenia</li>}
                     </ul>
+                    <button className="btn" onClick={() => nav("/Friends")}>więcej</button>
                 </div>
 
                 <div className="card column walory">
                     <h2>Walory</h2>
                     <ul className="item-list">
-                        {friend.items.map(walor => (
+                        {friend.items.slice(0, 3).map(walor => (
                             <li key={walor.id}>
                                 <img
                                     className="item-preview"
@@ -119,6 +122,7 @@ const FriendProfile: React.FC = () => {
                         ))}
                         {friend.items.length === 0 && <li>Brak walorów do wyświetlenia</li>}
                     </ul>
+                    <button className="btn" onClick={() => nav(`/friend/${friend.id}/friendwalory`)}>więcej</button>
                 </div>
             </div>
         </div>
